@@ -11,6 +11,9 @@ Jogo web de aventura e exploração em pixel art, desenvolvido por alunos da gra
 ## ✨ Autores
 
 - [@higorr-rocha](https://www.github.com/higorr-rocha)
+- [@FelipeMatrone](https://www.github.com/FelipeMatrone)
+- [@GuiYamaguchi](https://www.github.com/GuiYamaguchi)
+- [@LuisFelipe](https://www.github.com/LuisFelipe-ESOFT)
 
 
 ## 📝 Licença
