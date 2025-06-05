@@ -17,7 +17,7 @@ export function usePlayer() {
     frameCount: 4,
     frameTick: 0,
     frameTickLimit: 10,
-    direction: 1, // 0 = cima, 1 = baixo, 2 = esquerda, 3 = direita
+    direction: 1,
   });
 
   const keys = ref({
@@ -27,11 +27,12 @@ export function usePlayer() {
     ArrowRight: false,
   });
 
+  // Função para resetar frame quando parado
   function resetFrame() {
     player.value.frameIndex = 0;
-    player.value.frameTick = 0;
   }
 
+  // Função para avançar frame de animação
   function updateFrame() {
     player.value.frameTick++;
     if (player.value.frameTick >= player.value.frameTickLimit) {
@@ -40,20 +41,10 @@ export function usePlayer() {
     }
   }
 
-  function setPosition(x, y, direction = null) {
-    player.value.x = x;
-    player.value.y = y;
-    if (direction !== null) {
-      player.value.direction = direction;
-    }
-    resetFrame(); // reseta a animação ao posicionar
-  }
-
   return {
     player,
     keys,
     resetFrame,
     updateFrame,
-    setPosition,
   };
 }
