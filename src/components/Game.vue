@@ -7,26 +7,29 @@
       style="display:block; width:100vw; height:100vh; image-rendering: pixelated; background: #000;"
       @click="enterFullscreen"
     ></canvas>
-    <div
+
+    <!-- Caixa de mensagem do jogo -->
+    <!-- <div
       v-if="dialog.visible"
       style="
         position: absolute;
+        top: 50%;
         left: 50%;
-        top: 20%;
-        transform: translate(-50%, 0);
-        background: rgba(0,0,0,0.85);
-        color: #fff;
-        padding: 24px 32px;
-        border-radius: 12px;
-        font-size: 1.2rem;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0, 0, 0, 0.75);
+        color: white;
+        padding: 16px 24px;
+        border-radius: 10px;
+        font-family: sans-serif;
+        font-size: 1.1rem;
+        white-space: pre-line;
+        pointer-events: none;
         z-index: 10;
-        min-width: 300px;
         text-align: center;
-        box-shadow: 0 4px 24px #000a;
       "
     >
-      <p style="margin:0;">{{ dialog.message }}</p>
-    </div>
+      {{ dialog.message }}
+    </div> -->
   </div>
 </template>
 
@@ -152,7 +155,6 @@ function update() {
     moving = true;
   }
 
-  // Usa canvasWidth.value e canvasHeight.value para limites
   newX = Math.max(0, Math.min(canvasWidth.value - player.value.width, newX));
   newY = Math.max(0, Math.min(canvasHeight.value - player.value.height, newY));
 
@@ -177,13 +179,17 @@ function update() {
     return;
   }
 
-  const collidedTemplo = verificaColisaoTemplos(playerRect);
-  const collidedAviao = verificaColisaoAviao(playerRect);
-  const temploComPorta = verificaColisaoPorta(playerRect);
+  const temploComPorta = verificaColisaoPorta(playerRect, canvasWidth.value, canvasHeight.value);
+  const collidedTemplo = verificaColisaoTemplos(playerRect, canvasWidth.value, canvasHeight.value);
+  const collidedAviao = verificaColisaoAviao(playerRect, canvasWidth.value, canvasHeight.value);
 
   if (temploComPorta && !dialog.value.visible) {
     dialog.value.visible = true;
-    dialog.value.message = 'Deseja entrar?\nE - Sim   ESC - Não';
+    if (temploComPorta === aviao) {
+      dialog.value.message = 'Deseja embarcar no avião?\nE - Sim   ESC - Não';
+    } else {
+      dialog.value.message = 'Deseja entrar?\nE - Sim   ESC - Não';
+    }
     dialog.value.currentTemplo = temploComPorta;
   }
 
