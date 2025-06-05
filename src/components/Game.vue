@@ -1,10 +1,33 @@
 <template>
-  <canvas
-    ref="canvas"
-    :width="canvasWidth"
-    :height="canvasHeight"
-    style="border:1px solid black; image-rendering: pixelated;"
-  ></canvas>
+  <div ref="gameContainer" style="position:relative; width:100vw; height:100vh; overflow:hidden;">
+    <canvas
+      ref="canvas"
+      :width="canvasWidth"
+      :height="canvasHeight"
+      style="display:block; width:100vw; height:100vh; image-rendering: pixelated; background: #000;"
+      @click="enterFullscreen"
+    ></canvas>
+    <div
+      v-if="dialog.visible"
+      style="
+        position: absolute;
+        left: 50%;
+        top: 20%;
+        transform: translate(-50%, 0);
+        background: rgba(0,0,0,0.85);
+        color: #fff;
+        padding: 24px 32px;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        z-index: 10;
+        min-width: 300px;
+        text-align: center;
+        box-shadow: 0 4px 24px #000a;
+      "
+    >
+      <p style="margin:0;">{{ dialog.message }}</p>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -17,10 +40,10 @@ import { useColisoes } from '../composables/useColisoes.js';
 import { usePlayer } from '../composables/usePlayer.js';
 import { useTeclado } from '../composables/useTeclado.js';
 
+const gameContainer = ref(null);
 const canvas = ref(null);
-// Torna largura e altura reativas
-const canvasWidth = ref(640);
-const canvasHeight = ref(480);
+const canvasWidth = ref(window.innerWidth);
+const canvasHeight = ref(window.innerHeight);
 
 let context;
 
@@ -38,13 +61,19 @@ const { player, keys, resetFrame, updateFrame } = usePlayer();
 const dialog = ref({ visible: false, message: '', currentTemplo: null });
 const currentMap = ref('exterior'); // 'exterior' ou 'interior'
 
+// FULLSCREEN: faz o container entrar em fullscreen
+function enterFullscreen() {
+  if (gameContainer.value.requestFullscreen) {
+    gameContainer.value.requestFullscreen();
+  }
+  resizeCanvasToFullscreen();
+}
+
 // Atualiza o tamanho do canvas para fullscreen
 function resizeCanvasToFullscreen() {
-  if (!canvas.value) return;
-  canvasWidth.value = window.innerWidth;
-  canvasHeight.value = window.innerHeight;
-
-  // Ajusta o tamanho físico do canvas para corresponder (width e height do canvas)
+  if (!canvas.value || !gameContainer.value) return;
+  canvasWidth.value = gameContainer.value.clientWidth;
+  canvasHeight.value = gameContainer.value.clientHeight;
   canvas.value.width = canvasWidth.value;
   canvas.value.height = canvasHeight.value;
 }
@@ -212,20 +241,12 @@ onMounted(() => {
     if (mapLoaded) loop();
   };
 
-  // FULLSCREEN: ao clicar no canvas, entra em fullscreen e redimensiona
-  canvas.value.addEventListener('click', async () => {
-    if (canvas.value.requestFullscreen) {
-      await canvas.value.requestFullscreen();
-      resizeCanvasToFullscreen(); // Atualiza o tamanho reactivo e do canvas físico
-    }
-  });
+  // FULLSCREEN: redimensiona o canvas ao redimensionar a janela ou fullscreen
+  window.addEventListener('resize', resizeCanvasToFullscreen);
+  document.addEventListener('fullscreenchange', resizeCanvasToFullscreen);
 
-  // FULLSCREEN: redimensiona o canvas ao redimensionar a janela em fullscreen
-  window.addEventListener('resize', () => {
-    if (document.fullscreenElement) {
-      resizeCanvasToFullscreen();
-    }
-  });
+  // Ajusta ao montar
+  resizeCanvasToFullscreen();
 });
 
 defineExpose({ dialog });
